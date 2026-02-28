@@ -17,6 +17,17 @@ AuralinGmProf is a modern Retail revival of the discontinued `gmProf` addon.
 - Supports optional ElvUI DataText registration.
 - Supports slash commands and a Blizzard settings category.
 
+## Dynamic DataText
+
+DataText can show concentration state instead of only profession count.
+
+Modes:
+
+- `focused`: concentration for your last opened crafting profession.
+- `lowest`: lowest concentration pool across discovered professions.
+- `portfolio`: a compact multi-profession concentration view.
+- `count`: legacy profession count display.
+
 ## Slash Commands
 
 - `/agmp help`
@@ -25,6 +36,9 @@ AuralinGmProf is a modern Retail revival of the discontinued `gmProf` addon.
 - `/agmp minimap`
 - `/agmp config`
 - `/agmp left|right|middle open|tooltip|spellbook`
+- `/agmp datatext focused|lowest|portfolio|count`
+- `/agmp warn <number>`
+- `/agmp percent`
 - `/agmp reset`
 
 ## Compatibility Targets

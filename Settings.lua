@@ -1,4 +1,4 @@
-local ADDON, ns = ...
+local _, ns = ...
 local L = ns.L
 
 local SettingsUI = {
@@ -35,6 +35,17 @@ local function CreateCheckbox(parent, yOffset, label, getter, setter)
 
     table.insert(SettingsUI.controls, checkbox)
     return checkbox
+end
+
+local function CreateActionButton(parent, yOffset, width, onClick)
+    local button = CreateFrame("Button", nil, parent, "UIPanelButtonTemplate")
+    button:SetPoint("TOPLEFT", 16, yOffset)
+    button:SetWidth(width)
+    button:SetHeight(22)
+    button:SetScript("OnClick", onClick)
+
+    table.insert(SettingsUI.controls, button)
+    return button
 end
 
 function SettingsUI:Refresh()
@@ -92,13 +103,36 @@ function SettingsUI:BuildPanel()
         if value and ns.ElvUIBridge then
             ns.ElvUIBridge:Register()
         end
+        ns.UI:RefreshBrokerText()
+    end)
+
+    local modeButton = CreateActionButton(panel, -212, 260, function()
+        local mode = ns.UI:CycleDataTextMode()
+        ns.UI:Print(string.format("DataText mode: %s", ns.UI:GetDataTextModeLabel(mode)))
+        SettingsUI:Refresh()
+    end)
+
+    modeButton.Refresh = function(self)
+        local mode = ns.DB:Get().datatext.mode
+        self:SetText("DataText Mode: " .. ns.UI:GetDataTextModeLabel(mode))
+    end
+
+    CreateCheckbox(panel, -244, L["Show concentration as percent"], function()
+        return ns.DB:Get().datatext.showPercent
+    end, function(value)
+        ns.DB:Get().datatext.showPercent = value
+        ns.UI:RefreshBrokerText()
     end)
 
     local help = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-    help:SetPoint("TOPLEFT", 16, -214)
-    help:SetWidth(650)
+    help:SetPoint("TOPLEFT", 16, -278)
+    help:SetWidth(680)
     help:SetJustifyH("LEFT")
-    help:SetText("Click actions: /agmp left|right|middle open|tooltip|spellbook")
+    help:SetText(
+        "Click actions: /agmp left|right|middle open|tooltip|spellbook\n"
+        .. "DataText mode: /agmp datatext focused|lowest|portfolio|count\n"
+        .. "Low concentration warning threshold: /agmp warn <number>"
+    )
 
     panel:SetScript("OnShow", function()
         SettingsUI:Refresh()

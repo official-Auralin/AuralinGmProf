@@ -22,6 +22,10 @@ local function PrintMessage(message)
     end
 end
 
+local function JoinModes()
+    return table.concat(ns.DB:GetDataTextModeList(), ", ")
+end
+
 local function PrintHelp()
     PrintMessage("/agmp help")
     PrintMessage("/agmp open - open last or first profession")
@@ -29,6 +33,9 @@ local function PrintHelp()
     PrintMessage("/agmp minimap - toggle minimap icon")
     PrintMessage("/agmp config - open options")
     PrintMessage("/agmp left|right|middle open|tooltip|spellbook")
+    PrintMessage("/agmp datatext focused|lowest|portfolio|count")
+    PrintMessage("/agmp warn <number> - low concentration alert threshold")
+    PrintMessage("/agmp percent - toggle concentration percentage display")
 end
 
 local function SetClickAction(button, actionAlias)
@@ -41,6 +48,42 @@ local function SetClickAction(button, actionAlias)
     local db = ns.DB:Get()
     db.clickActions[button] = action
     PrintMessage(string.format("Set %s click action to %s.", button, actionAlias))
+end
+
+local function HandleDataTextCommand(argument)
+    local db = ns.DB:Get()
+    local mode = string.lower(argument or "")
+
+    if mode == "" then
+        PrintMessage(string.format("DataText mode: %s", ns.UI:GetDataTextModeLabel(db.datatext.mode)))
+        PrintMessage("Available modes: " .. JoinModes())
+        return
+    end
+
+    if not ns.DB:IsValidDataTextMode(mode) then
+        PrintMessage("Invalid DataText mode. Available: " .. JoinModes())
+        return
+    end
+
+    ns.UI:SetDataTextMode(mode)
+    PrintMessage(string.format("DataText mode set to %s.", ns.UI:GetDataTextModeLabel(mode)))
+end
+
+local function HandleWarnCommand(argument)
+    local value = tonumber(argument)
+    if not value then
+        PrintMessage("Usage: /agmp warn <number>")
+        return
+    end
+
+    value = math.floor(value + 0.5)
+    if value < 0 then
+        value = 0
+    end
+
+    ns.DB:Get().datatext.warnThreshold = value
+    ns.UI:RefreshBrokerText()
+    PrintMessage(string.format("Low concentration warning threshold set to %d.", value))
 end
 
 local function RegisterSlashCommands()
@@ -89,6 +132,24 @@ local function RegisterSlashCommands()
 
         if command == "left" or command == "right" or command == "middle" then
             SetClickAction(command, string.lower(rest))
+            return
+        end
+
+        if command == "datatext" then
+            HandleDataTextCommand(rest)
+            return
+        end
+
+        if command == "warn" or command == "threshold" then
+            HandleWarnCommand(rest)
+            return
+        end
+
+        if command == "percent" then
+            local dt = ns.DB:Get().datatext
+            dt.showPercent = not dt.showPercent
+            ns.UI:RefreshBrokerText()
+            PrintMessage("Concentration percentage display: " .. (dt.showPercent and "ON" or "OFF"))
             return
         end
 
@@ -143,6 +204,12 @@ function Core:TRADE_SKILL_SHOW()
     end
 end
 
+function Core:CURRENCY_DISPLAY_UPDATE()
+    if initialized then
+        ns.UI:RefreshBrokerText()
+    end
+end
+
 Core:SetScript("OnEvent", function(self, event, ...)
     if self[event] then
         self[event](self, ...)
@@ -153,6 +220,7 @@ Core:RegisterEvent("ADDON_LOADED")
 Core:RegisterEvent("PLAYER_LOGIN")
 Core:RegisterEvent("SKILL_LINES_CHANGED")
 Core:RegisterEvent("TRADE_SKILL_SHOW")
+Core:RegisterEvent("CURRENCY_DISPLAY_UPDATE")
 
 function _G.AuralinGmProf_AddonCompartmentClick(addonName, buttonName, menuButtonFrame)
     if addonName and addonName ~= ADDON then
