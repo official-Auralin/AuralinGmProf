@@ -1,0 +1,17 @@
+# IDE
+.idea/
+.vscode/
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Lua tooling
+luac.out
+
+# WoW local/runtime artifacts
+WTF/
+SavedVariables/
+*.log
+*.tmp

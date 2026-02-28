@@ -1,0 +1,20 @@
+package-as: AuralinGmProf
+manual-changelog: CHANGELOG.md
+enable-nolib-creation: no
+
+externals:
+  libs/LibStub:
+    url: https://repos.wowace.com/wow/libstub/trunk
+  libs/CallbackHandler-1.0:
+    url: https://repos.wowace.com/wow/callbackhandler/trunk/CallbackHandler-1.0
+  libs/LibDataBroker-1.1:
+    url: https://repos.wowace.com/wow/libdatabroker-1-1/trunk/LibDataBroker-1.1
+  libs/LibQTip-1.0:
+    url: https://repos.wowace.com/wow/libqtip/mainline/trunk/LibQTip-1.0
+  libs/LibDBIcon-1.0:
+    url: https://repos.wowace.com/wow/libdbicon-1-0/trunk/LibDBIcon-1.0
+
+ignore:
+  - .github
+  - .gitignore
+  - RELEASING.md

@@ -1,0 +1,27 @@
+## Interface: 120001
+## Version: @project-version@
+## Title: AuralinGmProf
+## Notes: Retail profession launcher with LDB, AddOn Compartment, minimap icon, and ElvUI DataText support.
+## Author: gmarco (original), Wexen, Auralin (revival)
+## IconTexture: Interface\Minimap\Tracking\Repair
+## SavedVariables: AuralinGmProfDB
+## OptionalDeps: ElvUI
+## X-WoWI-ID: 24027
+## X-Curse-Project-ID: 0
+## AddonCompartmentFunc: AuralinGmProf_AddonCompartmentClick
+## AddonCompartmentFuncOnEnter: AuralinGmProf_AddonCompartmentOnEnter
+## AddonCompartmentFuncOnLeave: AuralinGmProf_AddonCompartmentOnLeave
+
+libs\LibStub\LibStub.lua
+libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
+libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+libs\LibQTip-1.0\LibQTip-1.0.lua
+libs\LibDBIcon-1.0\LibDBIcon-1.0.lua
+
+localization.lua
+Database.lua
+ProfessionService.lua
+UI.lua
+Settings.lua
+ElvUI.lua
+Core.lua
