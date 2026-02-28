@@ -49,6 +49,28 @@ local function FormatIcon(icon)
     return string.format("|T%s:0|t", tostring(icon))
 end
 
+local function ResolveCurrencyIcon(info, fallbackIcon)
+    if type(info) == "table" then
+        if type(info.iconFileID) == "number" and info.iconFileID > 0 then
+            return info.iconFileID
+        end
+
+        if type(info.iconFileID) == "string" and info.iconFileID ~= "" then
+            return info.iconFileID
+        end
+
+        if type(info.icon) == "number" and info.icon > 0 then
+            return info.icon
+        end
+
+        if type(info.icon) == "string" and info.icon ~= "" then
+            return info.icon
+        end
+    end
+
+    return fallbackIcon
+end
+
 local function GetFillRatio(snapshot)
     if snapshot.maxQuantity and snapshot.maxQuantity > 0 then
         return snapshot.quantity / snapshot.maxQuantity
@@ -163,7 +185,7 @@ function UI:GetConcentrationSnapshots(entries)
                         currencyID = currencyID,
                         quantity = quantity,
                         maxQuantity = maxQuantity,
-                        icon = entry.icon or info.iconFileID,
+                        icon = ResolveCurrencyIcon(info, entry.icon),
                         currencyName = info.name,
                     })
 
@@ -482,3 +504,4 @@ function UI:Initialize()
         self:RefreshMinimapIcon()
     end
 end
+
