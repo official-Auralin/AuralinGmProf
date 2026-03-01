@@ -10,6 +10,11 @@ Thumbs.db
 # Lua tooling
 luac.out
 
+# VCS metadata (avoid accidental nested-repo commits)
+**/.git/
+**/.svn/
+**/.hg/
+
 # WoW local/runtime artifacts
 WTF/
 SavedVariables/
