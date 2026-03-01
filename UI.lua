@@ -10,6 +10,13 @@ local LeftButtonIcon = " |TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:13:11:0:-
 local RightButtonIcon = " |TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:13:11:0:-1:512:512:12:66:333:411|t "
 local MiddleButtonIcon = " |TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:13:11:0:-1:512:512:12:66:127:204|t "
 
+local DATATEXT_MODE_LABEL_KEYS = {
+    focused = "Focused",
+    lowest = "Lowest",
+    portfolio = "Portfolio",
+    count = "Count",
+}
+
 local UI = {
     tooltip = nil,
     dataObject = nil,
@@ -27,23 +34,239 @@ local function PrintMessage(message)
     end
 end
 
+local function GetHeaderLabel()
+    return _G.PROFESSIONS_CRAFTING_HEADER or _G.TRADE_SKILLS or L["Professions"]
+end
+
+local function GetLegacyCountText(entries)
+    return string.format("%s (%d)", GetHeaderLabel(), #entries)
+end
+
+local function FormatIcon(icon)
+    if not icon then
+        return ""
+    end
+    return string.format("|T%s:0|t", tostring(icon))
+end
+
+local function ResolveCurrencyIcon(info, fallbackIcon)
+    if type(info) == "table" then
+        if type(info.iconFileID) == "number" and info.iconFileID > 0 then
+            return info.iconFileID
+        end
+
+        if type(info.iconFileID) == "string" and info.iconFileID ~= "" then
+            return info.iconFileID
+        end
+
+        if type(info.icon) == "number" and info.icon > 0 then
+            return info.icon
+        end
+
+        if type(info.icon) == "string" and info.icon ~= "" then
+            return info.icon
+        end
+    end
+
+    return fallbackIcon
+end
+
+local function GetFillRatio(snapshot)
+    if snapshot.maxQuantity and snapshot.maxQuantity > 0 then
+        return snapshot.quantity / snapshot.maxQuantity
+    end
+    return snapshot.quantity
+end
+
+local function CompareByFillThenQuantity(a, b)
+    local aFill = GetFillRatio(a)
+    local bFill = GetFillRatio(b)
+    if aFill ~= bFill then
+        return aFill < bFill
+    end
+
+    if a.quantity ~= b.quantity then
+        return a.quantity < b.quantity
+    end
+
+    local aName = string.lower(a.entry.name or "")
+    local bName = string.lower(b.entry.name or "")
+    return aName < bName
+end
+
+local function GetConcentrationValueText(snapshot, showPercent)
+    if showPercent and snapshot.maxQuantity and snapshot.maxQuantity > 0 then
+        local pct = math.floor((snapshot.quantity / snapshot.maxQuantity) * 100 + 0.5)
+        return string.format("%d%%", pct)
+    end
+
+    if snapshot.maxQuantity and snapshot.maxQuantity > 0 then
+        return string.format("%d/%d", snapshot.quantity, snapshot.maxQuantity)
+    end
+
+    return tostring(snapshot.quantity)
+end
+
+local function CloneAndSortSnapshots(snapshots)
+    local sorted = {}
+    for _, snapshot in ipairs(snapshots) do
+        table.insert(sorted, snapshot)
+    end
+    table.sort(sorted, CompareByFillThenQuantity)
+    return sorted
+end
+
 function UI:Print(message)
     PrintMessage(message)
 end
 
+function UI:GetDataTextModeLabel(mode)
+    local key = DATATEXT_MODE_LABEL_KEYS[mode] or DATATEXT_MODE_LABEL_KEYS.count
+    return L[key]
+end
+
+function UI:SetDataTextMode(mode)
+    if not ns.DB:IsValidDataTextMode(mode) then
+        return false
+    end
+
+    ns.DB:Get().datatext.mode = mode
+    self:RefreshBrokerText()
+    return true
+end
+
+function UI:CycleDataTextMode()
+    local db = ns.DB:Get()
+    local modes = ns.DB:GetDataTextModeList()
+    local current = db.datatext.mode
+
+    local index = 1
+    for i, mode in ipairs(modes) do
+        if mode == current then
+            index = i
+            break
+        end
+    end
+
+    local nextIndex = index + 1
+    if nextIndex > #modes then
+        nextIndex = 1
+    end
+
+    local mode = modes[nextIndex]
+    db.datatext.mode = mode
+    self:RefreshBrokerText()
+    return mode
+end
+
+function UI:GetConcentrationSnapshots(entries)
+    local snapshots = {}
+
+    if not (C_TradeSkillUI and type(C_TradeSkillUI.GetConcentrationCurrencyID) == "function") then
+        return snapshots
+    end
+
+    if not (C_CurrencyInfo and type(C_CurrencyInfo.GetCurrencyInfo) == "function") then
+        return snapshots
+    end
+
+    local seenSkillLineID = {}
+
+    for _, entry in ipairs(entries) do
+        if entry.skillLineID then
+            local okCurrency, currencyID = pcall(C_TradeSkillUI.GetConcentrationCurrencyID, entry.skillLineID)
+            if okCurrency and type(currencyID) == "number" and currencyID > 0 and not seenSkillLineID[entry.skillLineID] then
+                local okInfo, info = pcall(C_CurrencyInfo.GetCurrencyInfo, currencyID)
+                if okInfo and type(info) == "table" then
+                    local quantity = tonumber(info.quantity) or 0
+                    local maxQuantity = tonumber(info.maxQuantity) or 0
+
+                    table.insert(snapshots, {
+                        entry = entry,
+                        currencyID = currencyID,
+                        quantity = quantity,
+                        maxQuantity = maxQuantity,
+                        icon = ResolveCurrencyIcon(info, entry.icon),
+                        currencyName = info.name,
+                    })
+
+                    seenSkillLineID[entry.skillLineID] = true
+                end
+            end
+        end
+    end
+
+    return snapshots
+end
+
+function UI:GetFocusedSnapshot(snapshots, lastSkillLineID)
+    if type(lastSkillLineID) == "number" then
+        for _, snapshot in ipairs(snapshots) do
+            if snapshot.entry.skillLineID == lastSkillLineID or snapshot.entry.parentSkillLineID == lastSkillLineID then
+                return snapshot
+            end
+        end
+    end
+
+    return snapshots[1]
+end
+
+function UI:IsLowConcentration(snapshot, db)
+    local threshold = db.datatext.warnThreshold or 0
+    return snapshot.quantity <= threshold
+end
+
 function UI:GetBrokerText()
-    local label = _G.PROFESSIONS_CRAFTING_HEADER or _G.TRADE_SKILLS or L["Professions"]
     local db = ns.DB:Get()
     if not db then
-        return label
+        return GetHeaderLabel()
     end
 
     local entries = ns.ProfessionService:GetProfessionEntries(db)
     if #entries == 0 then
-        return label
+        return GetHeaderLabel()
     end
 
-    return string.format("%s (%d)", label, #entries)
+    local mode = db.datatext.mode
+    if mode == "count" then
+        return GetLegacyCountText(entries)
+    end
+
+    local snapshots = self:GetConcentrationSnapshots(entries)
+    if #snapshots == 0 then
+        return GetLegacyCountText(entries)
+    end
+
+    if mode == "lowest" then
+        local lowest = CloneAndSortSnapshots(snapshots)[1]
+        local value = GetConcentrationValueText(lowest, db.datatext.showPercent)
+        local alert = self:IsLowConcentration(lowest, db) and " !" or ""
+        return string.format("%s %s %s%s", L["LOW"], FormatIcon(lowest.icon), value, alert)
+    end
+
+    if mode == "portfolio" then
+        local sorted = CloneAndSortSnapshots(snapshots)
+        local maxItems = db.datatext.portfolioCount or 2
+        local parts = {}
+
+        for i = 1, math.min(maxItems, #sorted) do
+            local snapshot = sorted[i]
+            local value = GetConcentrationValueText(snapshot, db.datatext.showPercent)
+            local alert = self:IsLowConcentration(snapshot, db) and "!" or ""
+            table.insert(parts, string.format("%s %s%s", FormatIcon(snapshot.icon), value, alert))
+        end
+
+        return table.concat(parts, " | ")
+    end
+
+    local focused = self:GetFocusedSnapshot(snapshots, db.lastSkillLineID)
+    if focused then
+        local value = GetConcentrationValueText(focused, db.datatext.showPercent)
+        local alert = self:IsLowConcentration(focused, db) and " !" or ""
+        return string.format("%s %s%s", FormatIcon(focused.icon), value, alert)
+    end
+
+    return GetLegacyCountText(entries)
 end
 
 function UI:RefreshBrokerText()
@@ -165,7 +388,7 @@ function UI:ShowTooltip(anchor)
         UI.tooltip = nil
     end
 
-    local title = _G.PROFESSIONS_CRAFTING_HEADER or _G.TRADE_SKILLS or L["Professions"]
+    local title = GetHeaderLabel()
     tooltip:AddHeader("|cffffd200" .. title .. "|r", "|cffffd200" .. L["Current"] .. "|r", "")
     tooltip:AddSeparator()
 
@@ -282,3 +505,5 @@ function UI:Initialize()
         self:RefreshMinimapIcon()
     end
 end
+
+

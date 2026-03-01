@@ -63,6 +63,7 @@ function ElvUIBridge:Register()
         "PLAYER_ENTERING_WORLD",
         "SKILL_LINES_CHANGED",
         "TRADE_SKILL_SHOW",
+        "CURRENCY_DISPLAY_UPDATE",
     }
 
     local ok = pcall(

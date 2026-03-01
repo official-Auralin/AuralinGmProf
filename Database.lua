@@ -3,7 +3,14 @@ local _, ns = ...
 local DB = {}
 ns.DB = DB
 
-local CURRENT_DB_VERSION = 2
+local CURRENT_DB_VERSION = 3
+
+local DATATEXT_MODE_LIST = { "focused", "lowest", "portfolio", "count" }
+
+local VALID_DATATEXT_MODES = {}
+for _, mode in ipairs(DATATEXT_MODE_LIST) do
+    VALID_DATATEXT_MODES[mode] = true
+end
 
 DB.defaults = {
     dbVersion = CURRENT_DB_VERSION,
@@ -18,6 +25,12 @@ DB.defaults = {
         left = "open_last_or_first",
         right = "open_spellbook",
         middle = "show_tooltip",
+    },
+    datatext = {
+        mode = "focused",
+        warnThreshold = 200,
+        showPercent = false,
+        portfolioCount = 2,
     },
     lastSkillLineID = nil,
 }
@@ -54,6 +67,51 @@ local function MigrateLegacyClickActions(db)
     end
 end
 
+local function NormalizeDataTextConfig(db)
+    if type(db.datatext) ~= "table" then
+        db.datatext = {}
+    end
+
+    local dt = db.datatext
+
+    if not VALID_DATATEXT_MODES[dt.mode] then
+        dt.mode = DB.defaults.datatext.mode
+    end
+
+    local threshold = tonumber(dt.warnThreshold)
+    if not threshold then
+        threshold = DB.defaults.datatext.warnThreshold
+    end
+    if threshold < 0 then
+        threshold = 0
+    end
+    dt.warnThreshold = math.floor(threshold + 0.5)
+
+    if type(dt.showPercent) ~= "boolean" then
+        dt.showPercent = DB.defaults.datatext.showPercent
+    end
+
+    local portfolioCount = tonumber(dt.portfolioCount)
+    if not portfolioCount then
+        portfolioCount = DB.defaults.datatext.portfolioCount
+    end
+    portfolioCount = math.floor(portfolioCount)
+    if portfolioCount < 2 then
+        portfolioCount = 2
+    elseif portfolioCount > 4 then
+        portfolioCount = 4
+    end
+    dt.portfolioCount = portfolioCount
+end
+
+function DB:IsValidDataTextMode(mode)
+    return VALID_DATATEXT_MODES[mode] == true
+end
+
+function DB:GetDataTextModeList()
+    return DATATEXT_MODE_LIST
+end
+
 function DB:Init()
     if type(AuralinGmProfDB) ~= "table" then
         AuralinGmProfDB = {}
@@ -61,8 +119,9 @@ function DB:Init()
 
     MigrateLegacyClickActions(AuralinGmProfDB)
     CopyDefaults(self.defaults, AuralinGmProfDB)
-    AuralinGmProfDB.dbVersion = CURRENT_DB_VERSION
+    NormalizeDataTextConfig(AuralinGmProfDB)
 
+    AuralinGmProfDB.dbVersion = CURRENT_DB_VERSION
     self.data = AuralinGmProfDB
 end
 

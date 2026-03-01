@@ -24,6 +24,10 @@ The format follows Keep a Changelog and this project uses semantic versioning wi
 - Addon identity migrated to `AuralinGmProf`.
 - TOC modernized for Retail interface and packaging substitutions.
 - Localization source cleaned up to remove mojibake text.
+- DataText now supports dynamic concentration modes (`focused`, `lowest`, `portfolio`, `count`).
+- Added slash/config controls for DataText mode, low-concentration threshold, and percentage display.
+- Added `CURRENCY_DISPLAY_UPDATE` refresh handling for live concentration updates.
+- Corrected default click mapping so right click opens spellbook and middle click toggles tooltip.
 
 ### Removed
 
