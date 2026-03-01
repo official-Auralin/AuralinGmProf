@@ -7,7 +7,7 @@
 ## SavedVariables: AuralinGmProfDB
 ## OptionalDeps: ElvUI
 ## X-WoWI-ID: 24027
-## X-Curse-Project-ID: 0
+## X-Curse-Project-ID: 1473784
 ## AddonCompartmentFunc: AuralinGmProf_AddonCompartmentClick
 ## AddonCompartmentFuncOnEnter: AuralinGmProf_AddonCompartmentOnEnter
 ## AddonCompartmentFuncOnLeave: AuralinGmProf_AddonCompartmentOnLeave
