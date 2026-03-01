@@ -10,7 +10,7 @@ local LeftButtonIcon = " |TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:13:11:0:-
 local RightButtonIcon = " |TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:13:11:0:-1:512:512:12:66:333:411|t "
 local MiddleButtonIcon = " |TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:13:11:0:-1:512:512:12:66:127:204|t "
 
-local DATATEXT_MODE_LABELS = {
+local DATATEXT_MODE_LABEL_KEYS = {
     focused = "Focused",
     lowest = "Lowest",
     portfolio = "Portfolio",
@@ -121,7 +121,8 @@ function UI:Print(message)
 end
 
 function UI:GetDataTextModeLabel(mode)
-    return DATATEXT_MODE_LABELS[mode] or DATATEXT_MODE_LABELS.count
+    local key = DATATEXT_MODE_LABEL_KEYS[mode] or DATATEXT_MODE_LABEL_KEYS.count
+    return L[key]
 end
 
 function UI:SetDataTextMode(mode)
@@ -169,12 +170,12 @@ function UI:GetConcentrationSnapshots(entries)
         return snapshots
     end
 
-    local seenCurrency = {}
+    local seenSkillLineID = {}
 
     for _, entry in ipairs(entries) do
         if entry.skillLineID then
             local okCurrency, currencyID = pcall(C_TradeSkillUI.GetConcentrationCurrencyID, entry.skillLineID)
-            if okCurrency and type(currencyID) == "number" and currencyID > 0 and not seenCurrency[currencyID] then
+            if okCurrency and type(currencyID) == "number" and currencyID > 0 and not seenSkillLineID[entry.skillLineID] then
                 local okInfo, info = pcall(C_CurrencyInfo.GetCurrencyInfo, currencyID)
                 if okInfo and type(info) == "table" then
                     local quantity = tonumber(info.quantity) or 0
@@ -189,7 +190,7 @@ function UI:GetConcentrationSnapshots(entries)
                         currencyName = info.name,
                     })
 
-                    seenCurrency[currencyID] = true
+                    seenSkillLineID[entry.skillLineID] = true
                 end
             end
         end
@@ -240,7 +241,7 @@ function UI:GetBrokerText()
         local lowest = CloneAndSortSnapshots(snapshots)[1]
         local value = GetConcentrationValueText(lowest, db.datatext.showPercent)
         local alert = self:IsLowConcentration(lowest, db) and " !" or ""
-        return string.format("LOW %s %s%s", FormatIcon(lowest.icon), value, alert)
+        return string.format("%s %s %s%s", L["LOW"], FormatIcon(lowest.icon), value, alert)
     end
 
     if mode == "portfolio" then
@@ -504,4 +505,5 @@ function UI:Initialize()
         self:RefreshMinimapIcon()
     end
 end
+
 

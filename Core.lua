@@ -33,9 +33,9 @@ local function PrintHelp()
     PrintMessage("/agmp minimap - toggle minimap icon")
     PrintMessage("/agmp config - open options")
     PrintMessage("/agmp left|right|middle open|tooltip|spellbook")
-    PrintMessage("/agmp datatext focused|lowest|portfolio|count")
-    PrintMessage("/agmp warn <number> - low concentration alert threshold")
-    PrintMessage("/agmp percent - toggle concentration percentage display")
+    PrintMessage(L["/agmp datatext focused|lowest|portfolio|count"])
+    PrintMessage(L["/agmp warn <number> - low concentration alert threshold"])
+    PrintMessage(L["/agmp percent - toggle concentration percentage display"])
 end
 
 local function SetClickAction(button, actionAlias)
@@ -55,24 +55,24 @@ local function HandleDataTextCommand(argument)
     local mode = string.lower(argument or "")
 
     if mode == "" then
-        PrintMessage(string.format("DataText mode: %s", ns.UI:GetDataTextModeLabel(db.datatext.mode)))
-        PrintMessage("Available modes: " .. JoinModes())
+        PrintMessage(string.format("%s: %s", L["DataText mode"], ns.UI:GetDataTextModeLabel(db.datatext.mode)))
+        PrintMessage(string.format(L["Available modes: %s"], JoinModes()))
         return
     end
 
     if not ns.DB:IsValidDataTextMode(mode) then
-        PrintMessage("Invalid DataText mode. Available: " .. JoinModes())
+        PrintMessage(string.format(L["Invalid DataText mode. Available: %s"], JoinModes()))
         return
     end
 
     ns.UI:SetDataTextMode(mode)
-    PrintMessage(string.format("DataText mode set to %s.", ns.UI:GetDataTextModeLabel(mode)))
+    PrintMessage(string.format(L["DataText mode set to %s."], ns.UI:GetDataTextModeLabel(mode)))
 end
 
 local function HandleWarnCommand(argument)
     local value = tonumber(argument)
     if not value then
-        PrintMessage("Usage: /agmp warn <number>")
+        PrintMessage(L["Usage: /agmp warn <number>"])
         return
     end
 
@@ -83,7 +83,7 @@ local function HandleWarnCommand(argument)
 
     ns.DB:Get().datatext.warnThreshold = value
     ns.UI:RefreshBrokerText()
-    PrintMessage(string.format("Low concentration warning threshold set to %d.", value))
+    PrintMessage(string.format(L["Low concentration warning threshold set to %d."], value))
 end
 
 local function RegisterSlashCommands()
@@ -149,7 +149,11 @@ local function RegisterSlashCommands()
             local dt = ns.DB:Get().datatext
             dt.showPercent = not dt.showPercent
             ns.UI:RefreshBrokerText()
-            PrintMessage("Concentration percentage display: " .. (dt.showPercent and "ON" or "OFF"))
+            if dt.showPercent then
+                PrintMessage(L["Concentration percentage display: ON"])
+            else
+                PrintMessage(L["Concentration percentage display: OFF"])
+            end
             return
         end
 

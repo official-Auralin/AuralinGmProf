@@ -5,12 +5,12 @@ ns.DB = DB
 
 local CURRENT_DB_VERSION = 3
 
-local VALID_DATATEXT_MODES = {
-    focused = true,
-    lowest = true,
-    portfolio = true,
-    count = true,
-}
+local DATATEXT_MODE_LIST = { "focused", "lowest", "portfolio", "count" }
+
+local VALID_DATATEXT_MODES = {}
+for _, mode in ipairs(DATATEXT_MODE_LIST) do
+    VALID_DATATEXT_MODES[mode] = true
+end
 
 DB.defaults = {
     dbVersion = CURRENT_DB_VERSION,
@@ -109,7 +109,7 @@ function DB:IsValidDataTextMode(mode)
 end
 
 function DB:GetDataTextModeList()
-    return { "focused", "lowest", "portfolio", "count" }
+    return DATATEXT_MODE_LIST
 end
 
 function DB:Init()

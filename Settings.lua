@@ -68,7 +68,7 @@ function SettingsUI:BuildPanel()
     subtitle:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -8)
     subtitle:SetWidth(620)
     subtitle:SetJustifyH("LEFT")
-    subtitle:SetText("Modern profession launcher settings.")
+    subtitle:SetText(L["Modern profession launcher settings."])
 
     CreateCheckbox(panel, -64, L["Show minimap icon"], function()
         return not ns.DB:Get().minimap.hide
@@ -108,13 +108,13 @@ function SettingsUI:BuildPanel()
 
     local modeButton = CreateActionButton(panel, -212, 260, function()
         local mode = ns.UI:CycleDataTextMode()
-        ns.UI:Print(string.format("DataText mode: %s", ns.UI:GetDataTextModeLabel(mode)))
+        ns.UI:Print(string.format(L["DataText mode: %s"], ns.UI:GetDataTextModeLabel(mode)))
         SettingsUI:Refresh()
     end)
 
     modeButton.Refresh = function(self)
         local mode = ns.DB:Get().datatext.mode
-        self:SetText("DataText Mode: " .. ns.UI:GetDataTextModeLabel(mode))
+        self:SetText(string.format(L["DataText Mode: %s"], ns.UI:GetDataTextModeLabel(mode)))
     end
 
     CreateCheckbox(panel, -244, L["Show concentration as percent"], function()
@@ -129,9 +129,9 @@ function SettingsUI:BuildPanel()
     help:SetWidth(680)
     help:SetJustifyH("LEFT")
     help:SetText(
-        "Click actions: /agmp left|right|middle open|tooltip|spellbook\n"
-        .. "DataText mode: /agmp datatext focused|lowest|portfolio|count\n"
-        .. "Low concentration warning threshold: /agmp warn <number>"
+        L["Click actions: /agmp left|right|middle open|tooltip|spellbook"] .. "\n"
+            .. L["DataText mode: /agmp datatext focused|lowest|portfolio|count"] .. "\n"
+            .. L["Low concentration warning threshold: /agmp warn <number>"]
     )
 
     panel:SetScript("OnShow", function()
