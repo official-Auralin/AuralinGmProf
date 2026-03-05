@@ -96,3 +96,43 @@ if locale == "itIT" then
     L["Low concentration warning threshold: /agmp warn <number>"] = "Soglia avviso concentrazione bassa: /agmp warn <numero>"
     return
 end
+
+-- zhCN localization provided by XingDvD. Thank you!
+if locale == "zhCN" then
+    L["Left-Click"] = "鼠标左键"
+    L["Right-Click"] = "鼠标右键"
+    L["Middle-Click"] = "鼠标中键"
+    L["Primary"] = "主专业"
+    L["Secondary"] = "副专业"
+    L["No professions were found."] = "未找到专业。"
+    L["Action blocked while in combat."] = "战斗中无法执行此操作。"
+    L["Opened spellbook fallback."] = "已打开专业面板。"
+    L["Unknown command. Type /agmp help"] = "未知命令。请输入 /agmp help"
+
+    L["Focused"] = "专注值"
+    L["Lowest"] = "最低"
+    L["Portfolio"] = "作品集"
+    L["Count"] = "数量"
+    L["LOW"] = "低"
+
+    L["DataText mode"] = "数据文本模式"
+    L["Available modes: %s"] = "可用模式：%s"
+    L["Invalid DataText mode. Available: %s"] = "无效的数据文本模式。可用模式：%s"
+    L["DataText mode set to %s."] = "数据文本模式已设置为 %s。"
+    L["Usage: /agmp warn <number>"] = "用法：/agmp warn <数字>"
+    L["Low concentration warning threshold set to %d."] = "低专注值警告阈值已设置为 %d。"
+    L["Concentration percentage display: ON"] = "专注值百分比显示：开启"
+    L["Concentration percentage display: OFF"] = "专注值百分比显示：关闭"
+    L["DataText mode: %s"] = "数据文本模式：%s"
+    L["DataText Mode: %s"] = "数据文本模式：%s"
+
+    L["/agmp datatext focused|lowest|portfolio|count"] = "/agmp datatext focused|lowest|portfolio|count"
+    L["/agmp warn <number> - low concentration alert threshold"] = "/agmp warn <数字> - 低专注值警告阈值"
+    L["/agmp percent - toggle concentration percentage display"] = "/agmp percent - 切换专注值百分比显示"
+
+    L["Modern profession launcher settings."] = "专业启动器设置。"
+    L["Click actions: /agmp left|right|middle open|tooltip|spellbook"] = "点击操作：/agmp left|right|middle open|tooltip|spellbook"
+    L["DataText mode: /agmp datatext focused|lowest|portfolio|count"] = "数据文本模式：/agmp datatext focused|lowest|portfolio|count"
+    L["Low concentration warning threshold: /agmp warn <number>"] = "低专注值警告阈值：/agmp warn <数字>"
+    return
+end

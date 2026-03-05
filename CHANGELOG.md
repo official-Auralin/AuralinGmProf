@@ -18,6 +18,7 @@ The format follows Keep a Changelog and this project uses semantic versioning wi
 - CurseForge/GitHub packaging scaffolding (`.pkgmeta`, workflow, releasing docs).
 - MIT license.
 - New README with original-author attribution.
+- Added zhCN localization (contributed by XingDvD).
 
 ### Changed
 

@@ -7,6 +7,7 @@ AuralinGmProf is a modern Retail revival of the discontinued `gmProf` addon.
 - Revived from **gmProf**.
 - Original design and code: **gmarco** (also known as **Wexen** on WoWInterface).
 - Historical thanks retained: **Phanx** for addon localization guidance.
+- zhCN localization contribution: **XingDvD**.
 
 ## What It Does
 
