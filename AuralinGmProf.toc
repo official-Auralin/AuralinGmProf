@@ -1,5 +1,5 @@
 ## Interface: 120001
-## Version: @project-version@
+## Version: 1.0.0
 ## Title: AuralinGmProf
 ## Notes: Retail profession launcher with LDB, AddOn Compartment, minimap icon, and ElvUI DataText support.
 ## Author: gmarco (original), Wexen, Auralin (revival)
