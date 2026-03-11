@@ -6,6 +6,10 @@ The format follows Keep a Changelog and this project uses semantic versioning wi
 
 ## [Unreleased]
 
+### Fixed
+
+- ElvUI bridge now uses the Retail `C_AddOns.IsAddOnLoaded()` API with a legacy fallback, preventing startup errors on current WoW clients.
+
 ### Added
 
 - Retail-first modular rewrite:

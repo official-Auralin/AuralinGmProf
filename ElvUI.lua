@@ -6,6 +6,18 @@ local ElvUIBridge = {
 
 ns.ElvUIBridge = ElvUIBridge
 
+local function IsAddOnLoadedCompat(addonName)
+    if C_AddOns and type(C_AddOns.IsAddOnLoaded) == "function" then
+        return C_AddOns.IsAddOnLoaded(addonName)
+    end
+
+    if type(_G.IsAddOnLoaded) == "function" then
+        return _G.IsAddOnLoaded(addonName)
+    end
+
+    return false
+end
+
 local function DataText_OnEvent(panel)
     if panel and panel.text and ns.UI and ns.UI.GetBrokerText then
         panel.text:SetText(ns.UI:GetBrokerText())
@@ -40,7 +52,7 @@ function ElvUIBridge:Register()
         return
     end
 
-    if not IsAddOnLoaded("ElvUI") then
+    if not IsAddOnLoadedCompat("ElvUI") then
         return
     end
 
